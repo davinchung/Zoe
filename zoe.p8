@@ -6,6 +6,7 @@ k_right = 1
 k_up    = 2
 k_down  = 3
 
+--some comments ..... 
 local objects = {}
 
 function object(x,y)
