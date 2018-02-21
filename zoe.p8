@@ -68,9 +68,9 @@ function _update()
     zoe.y += 1
   end
 
-  --draw(hitbox(zoe))
-
-  hitbox_collide(zoe)
+  if (cell_collide(zoe)) then
+    if (collide(hitbox(zoe),hitbox()))
+    hitbox_collide(zoe)
  --[[
   local x1,x2,y1,y2
 
@@ -99,7 +99,7 @@ function _update()
 end
 
 function _draw()
-  --cls()
+  cls()
   -- draw map --
   map(0,0,map_x,map_y,16,8)
   
@@ -120,12 +120,8 @@ end
 
 -- if we're going to be using hitbox, we shouldn't use flags...
 -- not done
-function hitbox_collide(obj)
-  tempx = obj.x
-  tempy = obj.y
-
-  obj_hitbox = hitbox(obj)
-
+-- returns True if obj collides with a cell with flag 0
+function cell_collide(obj)
   --local x1,x2,y1,y2
   local celx = {}
   local cely = {}
@@ -153,15 +149,12 @@ function hitbox_collide(obj)
   obj_collide = false
 
   i = 1
-
   for i=1, count(flag_cell) do
-    if (flag_cell[i]) then obj_collide=true end
+    if (flag_cell[i]) then 
+      obj_collide=true
+    end
   end
-
-  if (obj_collide) then
-    obj.x = tempx
-    obj.y = tempy
-  end
+  return obj_collide
 end
 
 -- for testing out hitbox...
