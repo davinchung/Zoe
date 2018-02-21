@@ -40,8 +40,9 @@ end
 function _update()
 
   -- move zoe --
-  last_zoe = zoe
-		
+  prev_x = zoe.x
+  prev_y = zoe.y 
+
   if(btn(k_left)) then
     zoe.x -= 1
     zoe.face = false
@@ -59,15 +60,29 @@ function _update()
   if(btn(k_down)) then
     zoe.y += 1
   end
-  
-  if (fget(mget(zoe.x,zoe.y),0) == true) then
-  	zoe = last_zoe
+
+  local x1=zoe.x/8
+  local y1=zoe.y/8
+  local x2=(zoe.x+7)/8
+  local y2=(zoe.y+7)/8
+
+  local a=fget(mget(x1,y1),0)
+  local b=fget(mget(x1,y2),0)
+  local c=fget(mget(x2,y2),0)
+  local d=fget(mget(x2,y1),0)
+
+  obj_collide = a or b or c or d
+
+  if (obj_collide) then
+  	print('fget is true!')
+    zoe.x = prev_x
+    zoe.y = prev_y
   end
 end
 
 function _draw()
   -- draw map --
-  map(0,0,0,32,16,8)
+  map(0,0,0,0,16,8)
   
   -- draw zoe --
   spr(1,zoe.x,zoe.y,
