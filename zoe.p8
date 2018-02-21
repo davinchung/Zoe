@@ -8,6 +8,10 @@ k_down  = 3
 
 local objects = {}
 
+function _init()
+  cls()
+end
+
 function object(x,y)
   local t = {
     x = x,
@@ -20,8 +24,8 @@ function object(x,y)
 end
 
 function hitbox(obj)
-  temp = object(obj.x, obj.y+obj.width-4)
-  temp.height = 4
+  temp = object(obj.x, obj.y+8*obj.height-4)
+  temp.height = obj.height*1/2 -- NOT to be spr'ed!
   temp.width = obj.width
   return temp
 end
@@ -68,31 +72,30 @@ function _update()
     zoe.y += 1
   end
 
+  --hitbox_collide(hitbox(zoe))
+ 
   local x1,x2,y1,y2
-  if (zoe.face == false) then 
-    x1 = zoe.x/8
-    y1 = zoe.y/8
-    x2 = (zoe.x+7)/8
-    y2 = (zoe.y+7)/8
-  else
-    x1 = (zoe.x+16)/8
-    y1 = zoe.y/8
-    x2 = (zoe.x+16)/8
-    y2 = (zoe.y+7)/8
-  end
+
+  x1 = zoe.x/8
+  y1 = zoe.y/8
+  x2 = (zoe.x+15)/8
+  y2 = (zoe.y+7)/8
 
   local a=fget(mget(x1,y1),0)
   local b=fget(mget(x1,y2),0)
   local c=fget(mget(x2,y2),0)
   local d=fget(mget(x2,y1),0)
+  local e=fget(mget(x1+1,y1),0)
+  local f=fget(mget(x1+1,y2),0)
 
 
-  obj_collide = a or b or c or d
+  obj_collide = a or b or c or d or e or f
 
   if (obj_collide) then
     zoe.x = prev_x
     zoe.y = prev_y
   end
+
 end
 
 function _draw()
@@ -103,6 +106,48 @@ function _draw()
   spr(1,zoe.x,zoe.y,
     zoe.width,zoe.height,
     zoe.face)
+end
+
+-- If we're going to be using hitbox, we shouldn't use flags...
+-- NOT DONE
+function hitbox_collide(obj)
+  tempx = obj.x
+  tempy = obj.y
+
+  --local x1,x2,y1,y2
+  local celx = {}
+  local cely = {}
+  local flag_cell = {}
+
+  celx[1]=obj.x/8
+  cely[1]=obj.y/8
+
+  for i=2, obj.width+1 do
+    if celx[i]==nil then celx[i]=(obj.x+(i-1)*8-1)/8 end
+  end
+
+  for i=2, obj.height+1 do
+    if cely[i]==nil then cely[i]=(obj.y+(i-1)*8-1)/8 end
+  end
+
+  for i=1, count(celx) do
+    for j=1, count(cely) do
+      flag_cell[j+count(celx)*(i-1)]=fget(mget(celx[i],cely[j]),0)
+    end
+  end
+
+  obj_collide = false
+
+  i = 1
+
+  for i=1, count(flag_cell) do
+    if (flag_cell[i]) then obj_collide=true end
+  end
+
+  if (obj_collide) then
+    obj.x = tempx
+    obj.y = tempy
+  end
 end
 
 function collide(a,b)
