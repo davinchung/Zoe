@@ -13,10 +13,17 @@ function object(x,y)
     x = x,
     y = y,
     width = 1,
-    height = 1
+    height = 1,
   }
   setmetatable(t,objects)
   return t
+end
+
+function hitbox(obj)
+  temp = object(obj.x, obj.y+obj.width-4)
+  temp.height = 4
+  temp.width = obj.width
+  return temp
 end
 
 local zoe = object(70,70)
@@ -61,20 +68,28 @@ function _update()
     zoe.y += 1
   end
 
-  local x1=zoe.x/8
-  local y1=zoe.y/8
-  local x2=(zoe.x+7)/8
-  local y2=(zoe.y+7)/8
+  local x1,x2,y1,y2
+  if (zoe.face == false) then 
+    x1 = zoe.x/8
+    y1 = zoe.y/8
+    x2 = (zoe.x+7)/8
+    y2 = (zoe.y+7)/8
+  else
+    x1 = (zoe.x+16)/8
+    y1 = zoe.y/8
+    x2 = (zoe.x+16)/8
+    y2 = (zoe.y+7)/8
+  end
 
   local a=fget(mget(x1,y1),0)
   local b=fget(mget(x1,y2),0)
   local c=fget(mget(x2,y2),0)
   local d=fget(mget(x2,y1),0)
 
+
   obj_collide = a or b or c or d
 
   if (obj_collide) then
-  	print('fget is true!')
     zoe.x = prev_x
     zoe.y = prev_y
   end
