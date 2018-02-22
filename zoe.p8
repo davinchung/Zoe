@@ -44,8 +44,7 @@ function objects.__sub(u,v)
   )
 end
 
-function _update()
-
+function move_zoe()
   -- move zoe --
   prev_x = zoe.x
   prev_y = zoe.y 
@@ -68,9 +67,18 @@ function _update()
     zoe.y += 1
   end
 
-  if (cell_collide(zoe)) then
-    if (collide(hitbox(zoe),hitbox()))
-    hitbox_collide(zoe)
+
+  which_cell = cell_collide(zoe)
+  -- If Zoe collides with a cell with flag 0 then..
+  -- Assuming all barriers/objects are one cell...
+  if (which_cell != false) then
+      --print(which_cell.x)
+      --print(which_cell.y)
+    if (collide(hitbox(zoe),hitbox(which_cell))) then
+      zoe.x = prev_x
+      zoe.y = prev_y
+    end
+  end
  --[[
   local x1,x2,y1,y2
 
@@ -98,8 +106,13 @@ function _update()
 --]]
 end
 
+
+function _update()
+  move_zoe()
+end
+
 function _draw()
-  cls()
+ --cls()
   -- draw map --
   map(0,0,map_x,map_y,16,8)
   
@@ -119,49 +132,55 @@ function hitbox(obj)
 end
 
 -- if we're going to be using hitbox, we shouldn't use flags...
--- not done
--- returns True if obj collides with a cell with flag 0
+-- returns and object with x_pos and y_pos if obj collides with a cell with flag 0
+-- returns false otherwise
 function cell_collide(obj)
   --local x1,x2,y1,y2
   local celx = {}
   local cely = {}
-  local flag_cell = {}
+  --local flag_cell = {}
 
-  celx[1]=(obj_hitbox.x-map_x)/8
-  cely[1]=(obj_hitbox.y-map_y)/8
-  celx[obj_hitbox.width+1]=(obj_hitbox.x+obj_hitbox.width*8-1-map_x)/8
-  cely[obj_hitbox.height+1]=(obj_hitbox.y+obj_hitbox.height*8-1-map_y)/8
+  celx[1]=(obj.x-map_x)/8
+  cely[1]=(obj.y-map_y)/8
+  celx[obj.width+1]=(obj.x+obj.width*8-1-map_x)/8
+  cely[obj.height+1]=(obj.y+obj.height*8-1-map_y)/8
 
-  for i=2, obj_hitbox.width do
+  for i=2, obj.width do
     if celx[i]==nil then celx[i]=celx[i-1]+1 end
   end
 
-  for i=2, obj_hitbox.height do
+  for i=2, obj.height do
     if cely[i]==nil then cely[i]=cely[i-1]+1 end
   end
 
+  is_flag = false
+
   for i=1, count(celx) do
     for j=1, count(cely) do
-      flag_cell[j+count(celx)*(i-1)]=fget(mget(celx[i],cely[j]),0)
+
+      is_flag = fget(mget(celx[i],cely[j]),0)
+
+      --flag_cell[j+count(celx)*(i-1)]=fget(mget(celx[i],cely[j]),0)
+      if (is_flag) then 
+        x_pos = celx[i] * 8 
+        y_pos = cely[j] * 8
+        cell=object(x_pos,y_pos)
+        return cell
+      end
     end
   end
 
-  obj_collide = false
-
-  i = 1
-  for i=1, count(flag_cell) do
-    if (flag_cell[i]) then 
-      obj_collide=true
-    end
-  end
-  return obj_collide
+  return false
 end
 
 -- for testing out hitbox...
-function draw_hitbox(obj)
-  spr(11,obj.x,obj.y,obj.width,1)
+function draw_hitbox(hbox)
+  spr(11,hbox.x,hbox.y-4,hbox.width,1)
 end
 
+
+-- returns TRUE if a and b collides
+-- returns FALSE otherwise
 function collide(a,b)
   -- get corners
   ax1 = a.x
